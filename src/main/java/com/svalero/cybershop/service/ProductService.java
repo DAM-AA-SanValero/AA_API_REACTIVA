@@ -5,21 +5,21 @@ import com.svalero.cybershop.domain.Discount;
 import com.svalero.cybershop.domain.Product;
 import com.svalero.cybershop.exception.ClientNotFoundException;
 import com.svalero.cybershop.exception.ProductNotFoundException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface ProductService {
-    List<Product> findAll();
-    Product findById(long id) throws ProductNotFoundException;
+    Flux<Product> findAll();
 
-    Product addProduct(Product product);
+    Flux<Product> filterByInStock(boolean stock) throws ProductNotFoundException;
+    Mono<Product> findById(String id) throws ProductNotFoundException;
 
-    void deleteProduct(long id) throws ProductNotFoundException;
+    Mono<Product> addProduct(Product product);
 
-    Product updateProduct(long id, Product product) throws ProductNotFoundException;
+    Mono<Product> deleteProduct(String id) throws ProductNotFoundException;
 
-    Product updateProductPrice(long id, float newPrice) throws ProductNotFoundException;
-    List<Product> filterByInStock(boolean stock) throws ProductNotFoundException;
 
 }
 

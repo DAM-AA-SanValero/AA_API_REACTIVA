@@ -1,51 +1,45 @@
 package com.svalero.cybershop.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.format.annotation.NumberFormat;
+import org.springframework.data.annotation.Id;
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name= "discount")
+@Document(value= "discount")
 public class Discount {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column
+    @Field
     @NotBlank(message = "<-- Este campo no puede estar vacio")
     @NotNull(message = "<-- Este campo es obligatorio")
     private String product;
 
-    @Column
+    @Field
     @Size(max = 500, message = "<-- Este campo solo puede tener 500 caracteres")
     @NotBlank(message = "<-- Este campo no puede estar vacio")
     @NotNull(message = "<-- Este campo es obligatorio")
     private String event;
 
-    @Column
+    @Field
     @Negative(message = "<-- Este campo solo puede ser contener números negativos")
     private float discounted;
 
-    @Column
+    @Field
     private LocalDate startDiscount;
 
-    @Column
+    @Field
     private LocalDate endDiscount;
-
-
-    @OneToMany(mappedBy = "id")
-    @JsonBackReference(value = "dicount-product")
-    private List<Product> products;
-
-
 }

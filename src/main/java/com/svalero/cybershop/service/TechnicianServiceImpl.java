@@ -1,10 +1,13 @@
 package com.svalero.cybershop.service;
 
+import com.svalero.cybershop.domain.Discount;
 import com.svalero.cybershop.domain.Technician;
 import com.svalero.cybershop.exception.TechnicianNotFoundException;
 import com.svalero.cybershop.repository.TechnicianRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
@@ -15,48 +18,32 @@ public class TechnicianServiceImpl implements TechnicianService{
     TechnicianRepository technicianRepository;
 
     @Override
-    public List<Technician> findAll() {
+    public Flux<Technician> findAll() {
         return technicianRepository.findAll();
     }
 
     @Override
-    public Technician findById(long id) throws TechnicianNotFoundException {
-        return technicianRepository.findById(id).orElseThrow(TechnicianNotFoundException::new);
-    }
-    @Override
-    public Technician addTechnician(Technician technician) {
-        return technicianRepository.save(technician);
-    }
-
-    @Override
-    public void deleteTechnician(long id) throws TechnicianNotFoundException{
-        Technician technician = technicianRepository.findById(id).orElseThrow(TechnicianNotFoundException::new);
-        technicianRepository.delete(technician);
-    }
-
-    @Override
-    public Technician updateTechnician(long id, Technician updateTechnician) throws TechnicianNotFoundException {
-        Technician oldTechnician = technicianRepository.findById(id).orElseThrow(TechnicianNotFoundException::new);
-        oldTechnician.setName(updateTechnician.getName());
-        oldTechnician.setSurname(updateTechnician.getSurname());
-        oldTechnician.setNumber(updateTechnician.getNumber());
-        oldTechnician.setDepartment(updateTechnician.getDepartment());
-        oldTechnician.setAvailable(updateTechnician.isAvailable());
-
-        return technicianRepository.save(oldTechnician);
-    }
-
-    @Override
-    public Technician updateTechnicianAvailability(long id, boolean availability) throws TechnicianNotFoundException {
-        Technician technician = technicianRepository.findById(id).orElseThrow(TechnicianNotFoundException::new);
-        technician.setAvailable(availability);
-        return technicianRepository.save(technician);
-    }
-
-    @Override
-    public List<Technician> filterByNumber(int number) throws TechnicianNotFoundException {
+    public Flux<Technician> filterByNumber(int number) throws TechnicianNotFoundException {
         return technicianRepository.findByNumber(number);
     }
+
+
+    @Override
+    public Mono<Technician> findById(String id) throws TechnicianNotFoundException {
+        return technicianRepository.findById(id).onErrorReturn(new Technician());
+    }
+    @Override
+    public Mono<Technician> addTechnician(Technician technician) {
+        return technicianRepository.save(technician);
+    }
+
+    @Override
+    public Mono<Technician> deleteTechnician(String id) throws TechnicianNotFoundException{
+        Mono<Technician> technician = technicianRepository.findById(id).onErrorReturn(new Technician());
+        technicianRepository.delete(technician.block());
+        return technician;
+    }
+
 
 
 }
