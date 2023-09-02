@@ -190,7 +190,7 @@
 					"response": []
 				},
 				{
-					"name": "disocunts",
+					"name": "discounts",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -262,7 +262,7 @@
 					"response": []
 				},
 				{
-					"name": "product?vip",
+					"name": "product?stock",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -496,7 +496,7 @@
 					"response": []
 				},
 				{
-					"name": "technicians?vip",
+					"name": "technicians?number",
 					"request": {
 						"method": "GET",
 						"header": [],
