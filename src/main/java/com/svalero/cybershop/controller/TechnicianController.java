@@ -2,6 +2,7 @@ package com.svalero.cybershop.controller;
 
 import com.svalero.cybershop.domain.Technician;
 import com.svalero.cybershop.exception.ErrorMessage;
+import com.svalero.cybershop.exception.RepairNotFoundException;
 import com.svalero.cybershop.exception.TechnicianNotFoundException;
 import com.svalero.cybershop.service.TechnicianService;
 import jakarta.validation.Valid;
@@ -36,22 +37,23 @@ public class TechnicianController {
 
     }
 
-    @GetMapping("/technicians/{id}")
+    @GetMapping(value = "/technicians/{id}")
     public ResponseEntity<Mono<Technician>> getTechnician(@PathVariable String id) throws TechnicianNotFoundException{
         Mono<Technician> technician = technicianService.findById(id);
         return ResponseEntity.status(200).body(technician);
     }
 
-    @PostMapping("technicians")
+    @PostMapping(value = "/technicians")
     public ResponseEntity<Mono<Technician>> addTechnician(@Valid @RequestBody Technician technician){
         Mono<Technician> newTechnician = technicianService.addTechnician(technician);
         return ResponseEntity.status(201).body(newTechnician);
     }
 
-    @DeleteMapping("technicians/{id}")
-    public ResponseEntity<Mono<Technician>> deleteTechnician(@PathVariable String id) throws TechnicianNotFoundException{
-        technicianService.deleteTechnician(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(value = "/technicians/{id}")
+    public Mono<ResponseEntity<Void>> deleteTechnician(@PathVariable String id) throws TechnicianNotFoundException {
+        return technicianService.deleteTechnician(id)
+                .then(Mono.just((ResponseEntity.noContent().<Void>build())))
+                .onErrorResume(e -> e instanceof TechnicianNotFoundException, e -> Mono.just(ResponseEntity.notFound().build()));
     }
     @ExceptionHandler(TechnicianNotFoundException.class)
     public ResponseEntity<ErrorMessage> techinicianNotFoundException(TechnicianNotFoundException tnfe){
@@ -62,7 +64,6 @@ public class TechnicianController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> badRequestException(MethodArgumentNotValidException manve){
 
-        //Indicar en que campo ha fallado el cliente
         Map<String, String> errors = new HashMap<>();
         manve.getBindingResult().getAllErrors().forEach(error -> {
             String fieldname = ((FieldError) error).getField();

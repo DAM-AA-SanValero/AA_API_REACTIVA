@@ -1,7 +1,9 @@
 package com.svalero.cybershop.service;
 
 import com.svalero.cybershop.domain.Discount;
+import com.svalero.cybershop.domain.Repair;
 import com.svalero.cybershop.domain.Technician;
+import com.svalero.cybershop.exception.DiscountNotFoundException;
 import com.svalero.cybershop.exception.TechnicianNotFoundException;
 import com.svalero.cybershop.repository.TechnicianRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +38,11 @@ public class TechnicianServiceImpl implements TechnicianService{
     public Mono<Technician> addTechnician(Technician technician) {
         return technicianRepository.save(technician);
     }
-
     @Override
-    public Mono<Technician> deleteTechnician(String id) throws TechnicianNotFoundException{
-        Mono<Technician> technician = technicianRepository.findById(id).onErrorReturn(new Technician());
-        technicianRepository.delete(technician.block());
-        return technician;
+    public Mono<Void> deleteTechnician(String id) throws TechnicianNotFoundException{
+        return technicianRepository.findById(id)
+                .switchIfEmpty(Mono.error(new TechnicianNotFoundException()))
+                .flatMap(existingDiscount -> technicianRepository.delete(existingDiscount)).then(Mono.empty());
     }
 
 

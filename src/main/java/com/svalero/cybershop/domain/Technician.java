@@ -13,11 +13,11 @@ import org.springframework.data.annotation.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(value= "techician")
+@Document(value= "technician")
 public class Technician {
 
     @Id
-    private long id;
+    private String id;
 
     @Field
     @NotBlank(message = "<-- Este campo no puede estar vacio")

@@ -18,7 +18,7 @@ public interface DiscountService {
 
     Mono<Discount> addDiscount(Discount discount);
 
-    Mono<Discount> deleteDiscount(String id) throws DiscountNotFoundException;
+    Mono<Void> deleteDiscount(String id) throws DiscountNotFoundException;
 
 
 }

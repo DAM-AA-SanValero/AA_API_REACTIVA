@@ -2,6 +2,7 @@ package com.svalero.cybershop.service;
 
 import com.svalero.cybershop.domain.Discount;
 import com.svalero.cybershop.domain.Repair;
+import com.svalero.cybershop.exception.DiscountNotFoundException;
 import com.svalero.cybershop.exception.RepairNotFoundException;
 import com.svalero.cybershop.repository.RepairRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +41,10 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public Mono<Repair> deleteRepair(String id) throws RepairNotFoundException {
-        Mono<Repair> repair = repairRepository.findById(id).onErrorReturn(new Repair());
-        repairRepository.delete(repair.block());
-        return repair;
+    public Mono<Void> deleteRepair(String id) throws RepairNotFoundException {
+        return repairRepository.findById(id)
+                .switchIfEmpty(Mono.error(new RepairNotFoundException()))
+                .flatMap(existingDiscount -> repairRepository.delete(existingDiscount)).then(Mono.empty());
     }
 
 

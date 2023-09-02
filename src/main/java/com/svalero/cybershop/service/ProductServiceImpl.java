@@ -4,6 +4,7 @@ import com.svalero.cybershop.domain.Client;
 import com.svalero.cybershop.domain.Discount;
 import com.svalero.cybershop.domain.Product;
 import com.svalero.cybershop.exception.ClientNotFoundException;
+import com.svalero.cybershop.exception.DiscountNotFoundException;
 import com.svalero.cybershop.exception.ProductNotFoundException;
 import com.svalero.cybershop.repository.ClientRepository;
 import com.svalero.cybershop.repository.ProductRepository;
@@ -41,11 +42,9 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public Mono<Product> deleteProduct(String id) throws ProductNotFoundException {
-        Mono<Product> product = productRepository.findById(id).onErrorReturn(new Product());
-        return product;
+    public Mono<Void> deleteProduct(String id) throws ProductNotFoundException {
+        return productRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ProductNotFoundException()))
+                .flatMap(existingDiscount -> productRepository.delete(existingDiscount)).then(Mono.empty());
     }
-
-
-
 }

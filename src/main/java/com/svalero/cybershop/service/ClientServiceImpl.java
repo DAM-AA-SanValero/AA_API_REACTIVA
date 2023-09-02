@@ -36,9 +36,9 @@ public class ClientServiceImpl implements ClientService{
     }
 
     @Override
-    public Mono<Client> deleteClient(String id) throws ClientNotFoundException {
-        Mono<Client> client = clientRepository.findById(id).onErrorReturn(new Client());
-        clientRepository.delete(client.block());
-        return client;
+    public Mono<Void> deleteClient(String id) throws ClientNotFoundException {
+        return clientRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ClientNotFoundException()))
+                .flatMap(existingClient -> clientRepository.delete(existingClient).then(Mono.empty()));
     }
 }

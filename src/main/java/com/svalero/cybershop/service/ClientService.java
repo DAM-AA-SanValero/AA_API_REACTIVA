@@ -16,7 +16,7 @@ public interface ClientService {
 
     Mono<Client> addClient(Client client);
 
-    Mono<Client> deleteClient(String id) throws ClientNotFoundException;
+    Mono<Void> deleteClient(String id) throws ClientNotFoundException;
 
 
 

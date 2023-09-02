@@ -2,6 +2,7 @@ package com.svalero.cybershop.controller;
 
 import com.svalero.cybershop.domain.Repair;
 import com.svalero.cybershop.exception.ErrorMessage;
+import com.svalero.cybershop.exception.ProductNotFoundException;
 import com.svalero.cybershop.exception.RepairNotFoundException;
 import com.svalero.cybershop.service.RepairService;
 import jakarta.validation.Valid;
@@ -39,22 +40,23 @@ public class RepairController {
 
     }
 
-    @GetMapping("/repairs/{id}")
+    @GetMapping(value = "/repairs/{id}")
     public ResponseEntity<Mono<Repair>> getRepair(@PathVariable String id) throws RepairNotFoundException{
         Mono<Repair> repair = repairService.findById(id);
         return ResponseEntity.status(200).body(repair);
     }
 
-    @PostMapping("/repairs")
+    @PostMapping(value = "/repairs")
     public ResponseEntity<Mono<Repair>> addRepair(@Valid @RequestBody Repair repair){
         Mono<Repair> newRepair = repairService.addRepair(repair);
         return ResponseEntity.status(201).body(newRepair);
     }
 
-    @DeleteMapping("/repairs/{id}")
-    public ResponseEntity<Mono<Repair>> deleteRepair(@PathVariable String id) throws RepairNotFoundException{
-        repairService.deleteRepair(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(value = "/repairs/{id}")
+    public Mono<ResponseEntity<Void>> deleteRepair(@PathVariable String id) throws RepairNotFoundException {
+        return repairService.deleteRepair(id)
+                .then(Mono.just((ResponseEntity.noContent().<Void>build())))
+                .onErrorResume(e -> e instanceof RepairNotFoundException, e -> Mono.just(ResponseEntity.notFound().build()));
     }
 
     @ExceptionHandler(RepairNotFoundException.class)
@@ -66,7 +68,6 @@ public class RepairController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> badRequestException(MethodArgumentNotValidException manve){
 
-        //Indicar en que campo ha fallado el cliente
         Map<String, String> errors = new HashMap<>();
         manve.getBindingResult().getAllErrors().forEach(error -> {
             String fieldname = ((FieldError) error).getField();

@@ -38,24 +38,26 @@ public class DiscountController {
         return ResponseEntity.status(200).body(discountService.filterByProduct(product));
     }
 
-    @GetMapping(value = "/discounts/{id}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/discounts/{id}")
     public ResponseEntity<Mono<Discount>> getDiscount(@PathVariable String id) throws DiscountNotFoundException{
        Mono<Discount> discount = discountService.findById(id);
        return ResponseEntity.status(200).body(discount);
     }
 
-    @PostMapping("/discounts")
+    @PostMapping(value = "/discounts")
     public ResponseEntity<Mono<Discount>> addDiscount(@Valid @RequestBody Discount discount){
         Mono<Discount> newDiscount = discountService.addDiscount(discount);
 
         return ResponseEntity.status(201).body(newDiscount);
     }
 
-    @DeleteMapping("discounts/{id}")
-    public ResponseEntity<Mono<Discount>> deleteDiscount(@PathVariable String id) throws DiscountNotFoundException{
-        discountService.deleteDiscount(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(value= "discounts/{id}")
+    public Mono<ResponseEntity<Void>> deleteDiscount(@PathVariable String id) throws DiscountNotFoundException{
+        return discountService.deleteDiscount(id)
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                .onErrorResume(e -> e instanceof DiscountNotFoundException, e -> Mono.just(ResponseEntity.notFound().build()));
     }
+
 
     @ExceptionHandler(DiscountNotFoundException.class)
     public ResponseEntity<ErrorMessage> discountNotFoundException(DiscountNotFoundException dnfe){
@@ -66,7 +68,6 @@ public class DiscountController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> badRequestException(MethodArgumentNotValidException manve){
 
-        //Indicar en que campo ha fallado el cliente
         Map<String, String> errors = new HashMap<>();
         manve.getBindingResult().getAllErrors().forEach(error -> {
             String fieldname = ((FieldError) error).getField();

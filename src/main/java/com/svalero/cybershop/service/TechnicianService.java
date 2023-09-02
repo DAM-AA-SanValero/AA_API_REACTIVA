@@ -16,7 +16,7 @@ public interface TechnicianService {
 
     Mono<Technician> addTechnician(Technician technician);
 
-    Mono<Technician> deleteTechnician(String id) throws TechnicianNotFoundException;
+    Mono<Void> deleteTechnician(String id) throws TechnicianNotFoundException;
 
 
 

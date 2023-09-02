@@ -49,11 +49,13 @@ public class ClientController {
         return ResponseEntity.status(201).body(newClient);
     }
 
-    @DeleteMapping("/clients/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable String id) throws ClientNotFoundException{
-        clientService.deleteClient(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(value = "/clients/{id}")
+    public Mono<ResponseEntity<Void>> deleteClient(@PathVariable String id) throws ClientNotFoundException {
+        return clientService.deleteClient(id)
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                .onErrorResume(e -> e instanceof ClientNotFoundException, e -> Mono.just(ResponseEntity.notFound().build()));
     }
+
 
     @ExceptionHandler(ClientNotFoundException.class)
     public ResponseEntity<ErrorMessage> clientNotFoundException(ClientNotFoundException cnfe){
@@ -64,7 +66,6 @@ public class ClientController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> badRequestException(MethodArgumentNotValidException manve){
 
-        //Indicar en que campo ha fallado el cliente
         Map<String, String> errors = new HashMap<>();
         manve.getBindingResult().getAllErrors().forEach(error -> {
             String fieldname = ((FieldError) error).getField();

@@ -36,9 +36,12 @@ public class DiscountServiceImpl implements DiscountService {
         return discountRepository.save(discount);
     }
 
-    public Mono<Discount> deleteDiscount(String id) throws DiscountNotFoundException {
-        Mono<Discount> discount = discountRepository.findById(id).onErrorReturn(new Discount());
-        discountRepository.delete(discount.block());
-        return discount;
+    public Mono<Void> deleteDiscount(String id) throws DiscountNotFoundException {
+        return discountRepository.findById(id)
+                .switchIfEmpty(Mono.error(new DiscountNotFoundException()))
+                .flatMap(existingDiscount -> discountRepository.delete(existingDiscount)).then(Mono.empty());
     }
+
+
+
 }

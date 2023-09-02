@@ -18,7 +18,7 @@ public interface ProductService {
 
     Mono<Product> addProduct(Product product);
 
-    Mono<Product> deleteProduct(String id) throws ProductNotFoundException;
+    Mono<Void> deleteProduct(String id) throws ProductNotFoundException;
 
 
 }

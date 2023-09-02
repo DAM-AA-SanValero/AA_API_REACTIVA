@@ -1,9 +1,11 @@
 package com.svalero.cybershop.controller;
 
 import com.svalero.cybershop.domain.Product;
+import com.svalero.cybershop.exception.DiscountNotFoundException;
 import com.svalero.cybershop.exception.ErrorMessage;
 import com.svalero.cybershop.exception.ProductNotFoundException;
 import com.svalero.cybershop.service.ProductService;
+import com.svalero.cybershop.service.ProductServiceImpl;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,24 +38,24 @@ public class ProductController {
         return ResponseEntity.status(200).body(productService.filterByInStock(Boolean.parseBoolean(stock)));
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping(value = "/products/{id}")
     public ResponseEntity<Mono<Product>> getProduct(@PathVariable String id) throws ProductNotFoundException{
         Mono<Product> product = productService.findById(id);
         return ResponseEntity.status(200).body(product);
     }
 
-    @PostMapping("/products")
+    @PostMapping(value = "/products")
     public ResponseEntity<Mono<Product>> addProduct(@Valid @RequestBody Product product){
         Mono<Product> newProduct = productService.addProduct(product);
         return ResponseEntity.status(201).body(newProduct);
     }
 
-    @DeleteMapping("/products/{id}")
-    public ResponseEntity<Mono<Product>> deleteProduct(@PathVariable String id) throws ProductNotFoundException{
-        productService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping(value = "/products/{id}")
+    public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable String id) throws ProductNotFoundException{
+        return productService.deleteProduct(id)
+                .then(Mono.just((ResponseEntity.noContent().<Void>build())))
+                .onErrorResume(e -> e instanceof ProductNotFoundException, e -> Mono.just(ResponseEntity.notFound().build()));
     }
-
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ErrorMessage> productNotFoundException(ProductNotFoundException pnfe){
         ErrorMessage notfound = new ErrorMessage(404,pnfe.getMessage());
@@ -63,7 +65,6 @@ public class ProductController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> badRequestException(MethodArgumentNotValidException manve){
 
-        //Indicar en que campo ha fallado el cliente
         Map<String, String> errors = new HashMap<>();
         manve.getBindingResult().getAllErrors().forEach(error -> {
             String fieldname = ((FieldError) error).getField();

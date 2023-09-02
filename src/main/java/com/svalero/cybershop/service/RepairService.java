@@ -18,7 +18,7 @@ public interface RepairService {
 
   Mono<Repair> addRepair(Repair repair);
 
-  Mono<Repair> deleteRepair(String id) throws RepairNotFoundException;
+  Mono<Void> deleteRepair(String id) throws RepairNotFoundException;
 
   Flux<Repair> filterByShipmentDate(LocalDate shipmentDate) throws RepairNotFoundException;
 
