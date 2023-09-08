@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CybershopApplication {
+public class CybershopReactiva {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CybershopApplication.class, args);
+		SpringApplication.run(CybershopReactiva.class, args);
 	}
 
 }

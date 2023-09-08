@@ -1,51 +1,45 @@
 package com.svalero.cybershop.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.util.List;
-
+import org.springframework.data.annotation.Id;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name= "techician")
+@Document(value= "technician")
 public class Technician {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private String id;
 
-    @Column
+    @Field
     @NotBlank(message = "<-- Este campo no puede estar vacio")
     @NotNull(message = "<-- Este campo es obligatorio")
     private String name;
 
-    @Column
+    @Field
     @NotBlank(message = "<-- Este campo no puede estar vacio")
     @NotNull(message = "<-- Este campo es obligatorio")
     private String surname;
 
-    @Column
+    @Field
     @PositiveOrZero(message = "<-- Este campo solo puede contener números positivos y 0")
     private int number;
 
-    @Column
+    @Field
     @NotNull(message = "<-- Este campo es obligatorio")
     private String department;
 
-    @Column
+    @Field
     private boolean available;
 
-    @OneToMany(mappedBy = "id")
-    @JsonBackReference(value = "technician-repair")
-    private List<Repair> repairs;
 
 
 }

@@ -3,21 +3,22 @@ package com.svalero.cybershop.service;
 import com.svalero.cybershop.domain.Discount;
 import com.svalero.cybershop.exception.ClientNotFoundException;
 import com.svalero.cybershop.exception.DiscountNotFoundException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface DiscountService {
 
-    List<Discount> findAll();
+    Flux<Discount> findAll();
 
-    Discount findById(long id) throws DiscountNotFoundException;
+    Flux<Discount> filterByProduct(String product) throws DiscountNotFoundException;
 
-    Discount addDiscount(Discount discount);
+    Mono<Discount> findById(String id) throws DiscountNotFoundException;
 
-    void deleteDiscount(long id) throws DiscountNotFoundException;
-    Discount updateDiscount(long id, Discount discount) throws DiscountNotFoundException;
+    Mono<Discount> addDiscount(Discount discount);
 
-    Discount updateDiscountDifference(long id, float newDiscount) throws DiscountNotFoundException;
+    Mono<Void> deleteDiscount(String id) throws DiscountNotFoundException;
 
-    List<Discount> filterByProduct(String product) throws DiscountNotFoundException;
+
 }
